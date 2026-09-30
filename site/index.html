@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore public MicrosoftDocs pull requests authored by a GitHub user, across all dates and pull-request states.">
+  <meta name="color-scheme" content="light dark">
+  <title>MicrosoftDocs contributions</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="MicrosoftDocs contributions home">
+      <span class="brand-mark" aria-hidden="true">/</span>
+      <span>Docs / contributions</span>
+    </a>
+    <a class="source-link" href="https://github.com/guygregory/microsoftdocs-contributions">View source <span aria-hidden="true">&#8599;</span></a>
+  </header>
+  <main id="main">
+    <section class="intro" aria-labelledby="heading">
+      <p class="eyebrow"><span aria-hidden="true"></span> Community contributions</p>
+      <h1 id="heading">Good documentation<br>starts with <em>you.</em></h1>
+      <p class="lede">Explore the pull requests you&rsquo;ve authored in public <strong>MicrosoftDocs</strong> repositories. Every date. Every pull-request state.</p>
+      <div class="scope-tags" aria-label="Included pull-request states">
+        <span>Draft</span><span>Open</span><span>Merged</span><span>Closed, unmerged</span>
+      </div>
+    </section>
+    <section class="search-panel" aria-labelledby="search-heading">
+      <h2 id="search-heading">Find your contributions</h2>
+      <form id="search-form" novalidate>
+        <label for="username">GitHub username</label>
+        <div class="form-row">
+          <div class="input-wrap">
+            <span aria-hidden="true">@</span>
+            <input id="username" name="username" type="text" placeholder="guygregory"
+              autocomplete="off" autocapitalize="none" spellcheck="false"
+              aria-describedby="username-help form-error" required maxlength="80">
+          </div>
+          <button id="search-button" type="submit">Find contributions <span aria-hidden="true">&#8594;</span></button>
+        </div>
+        <p id="username-help" class="help">Public data only. No sign-in or token needed.</p>
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+      </form>
+    </section>
+    <section id="results" class="results-panel" data-state="initial" aria-labelledby="results-heading">
+      <div class="results-header">
+        <div>
+          <p class="eyebrow">MicrosoftDocs / authored pull requests</p>
+          <h2 id="results-heading">Your contributions, in one place.</h2>
+        </div>
+        <div class="controls">
+          <button id="resume-button" class="secondary" type="button" hidden>Resume</button>
+          <button id="cancel-button" class="secondary" type="button" hidden>Cancel</button>
+        </div>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite" aria-atomic="true">
+        <span id="status-marker" aria-hidden="true"></span>
+        <div><strong id="status-title">Ready when you are.</strong><p id="status-detail">Enter a username to explore their public authored pull requests.</p></div>
+      </div>
+      <p id="retrieval-meta" class="retrieval-meta" hidden></p>
+      <div id="table-region" class="table-region" tabindex="0" role="region" aria-label="Pull requests, scroll horizontally on small screens" hidden>
+        <p class="table-hint">Scroll sideways to view all four columns.</p>
+        <table>
+          <caption id="table-caption">Authored MicrosoftDocs pull requests, newest first</caption>
+          <thead><tr><th scope="col">Date <span>(UTC)</span></th><th scope="col">PR</th><th scope="col">Repository</th><th scope="col">PR title</th></tr></thead>
+          <tbody id="contributions-body"></tbody>
+        </table>
+      </div>
+    </section>
+    <aside class="coverage" aria-labelledby="coverage-heading">
+      <span class="coverage-icon" aria-hidden="true">i</span>
+      <div>
+        <h2 id="coverage-heading">A public view, not an archive.</h2>
+        <p>Only searchable pull requests in <strong>currently owned public MicrosoftDocs repositories</strong> are included. Private, deleted, hidden or transferred-out history cannot be reconstructed. GitHub&rsquo;s search indexing can lag.</p>
+        <p>Retrieval uses a fixed creation-time cutoff, not an atomic snapshot. Edits, repository transfers and indexing changes during a run can affect results. A complete total means every search interval was retrieved and reconciled, not an authoritative historical guarantee.</p>
+      </div>
+    </aside>
+  </main>
+  <footer>
+    <span>Built for the people who make the docs better.</span>
+    <span>Independent project. Not affiliated with Microsoft or GitHub.</span>
+  </footer>
+  <noscript><p class="noscript">JavaScript is required to retrieve public data directly from GitHub. No data is stored by this site.</p></noscript>
+</body>
+</html>
