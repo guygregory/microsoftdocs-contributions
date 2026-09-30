@@ -8,14 +8,47 @@ import { START, pr, fakeApi } from "./helpers.js";
 const now = () => START + 86_400_000 * 4;
 const retrieve = (api, options) => new ContributionsRun(api, { now }).retrieve("tester", options);
 
-test("username normalization and conventional validation", () => {
-  for (const [input, expected] of [["  @guygregory  ", "guygregory"], [" @ tester ", "tester"], ["a-b", "a-b"], ["A".repeat(39), "A".repeat(39)]]) {
+test("username normalization supports standard, managed-user and bot logins", () => {
+  for (const [input, expected] of [
+    ["  @guygregory  ", "guygregory"], [" @ tester ", "tester"], ["a-b", "a-b"],
+    ["A".repeat(39), "A".repeat(39)], ["  @gugregor_microsoft  ", "gugregor_microsoft"],
+    ["mona-cat_octo", "mona-cat_octo"], ["octo_admin", "octo_admin"],
+    ["Mona-Cat_OCTO", "Mona-Cat_OCTO"], ["a".repeat(30) + "_abcdefgh", "a".repeat(30) + "_abcdefgh"],
+    ["github-actions[bot]", "github-actions[bot]"], [" @dependabot[bot] ", "dependabot[bot]"]
+  ]) {
     assert.equal(normalizeUsername(input), expected);
   }
-  for (const input of ["", "a b", "@@user", "-abc", "abc-", "a--b", "a_b", "x".repeat(40), "user org:evil", "<script>"]) {
+});
+
+test("candidate account validity is delegated to GitHub, not standard signup restrictions", () => {
+  for (const input of ["-abc", "abc-", "a--b", "a__b", "x".repeat(81)]) {
+    assert.equal(normalizeUsername(input), input);
+  }
+});
+
+test("username validation still rejects empty inputs and query/path injection", () => {
+  for (const input of [
+    "", "  @ ", "a b", "a\tb", "a\nb", "@@user", "user org:evil", "<script>",
+    "a/b", "a\\b", "../user", "a?b", "a#b", "a&b", "a%20b", '"user"',
+    "a@b", "a.b", "us\u00e9r", "[bot]", "user[other]", "user[bot]suffix", "user[bot][bot]"
+  ]) {
     assert.throws(() => normalizeUsername(input), /GitHub username/);
   }
 });
+
+for (const username of ["gugregor_microsoft", "mona-cat_octo", "octo_admin", "github-actions[bot]"]) {
+  test(`${username} reaches the account lookup and stays in the server-scoped author query`, async () => {
+    const api = fakeApi([pr(1)]);
+    const result = await new ContributionsRun(api, { now }).retrieve(`  @${username}  `);
+    assert.equal(result.username, username);
+    assert.equal(result.rows.length, 1);
+    assert.equal(api.calls[0], `/users/${encodeURIComponent(username)}`);
+    const searches = api.calls.filter(path => path.startsWith("/search/"));
+    assert.equal(searches.length, 1);
+    const query = new URL(searches[0], "https://api.github.com").searchParams.get("q");
+    assert.ok(query.startsWith(`author:${username} org:MicrosoftDocs is:pr created:`));
+  });
+}
 
 for (const count of [0, 100, 101, 1000, 1001, 7103]) {
   test(`retrieves and reconciles ${count} PRs across all dates`, async () => {

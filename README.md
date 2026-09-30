@@ -6,6 +6,8 @@ A dependency-free static website for exploring **all searchable authored pull re
 
 Enter a public GitHub username, such as `guygregory`. Leading `@` and surrounding whitespace are normalized. Draft, open, merged and closed-unmerged pull requests are included, newest first. Issues, reviews, comments and commits are not. The table contains exactly Date (UTC `YYYY-MM-DD`), PR, Repository and PR title. There is no backend, application build, production dependency, login, token, browser credential storage, analytics or persistent user-data storage. The username is sent directly to GitHub's public API.
 
+Input validation accepts ASCII letters, digits, hyphens and underscores, plus an optional `[bot]` suffix. This supports standard accounts, [Enterprise Managed Users](https://docs.github.com/en/enterprise-cloud@latest/admin/managing-iam/iam-configuration-reference/username-considerations-for-external-authentication) such as `mona-cat_octo`, enterprise setup accounts such as `octo_admin`, and GitHub App accounts such as `github-actions[bot]`. Rather than applying standard signup length/hyphen rules to every login format, the site uses GitHub's account lookup as the authority on account validity. Whitespace and search/path-injection characters remain blocked. A valid managed-user name may still return 404 from the anonymous public API; accepting its format does not grant access to an otherwise inaccessible account or private history.
+
 Authorship follows GitHub's server-side `author:` search. An associated Copilot-created PR can match that search while its response has `user.login: Copilot`; the site does not incorrectly exclude such matches by re-filtering that field.
 
 ## What a complete total means

@@ -61,11 +61,43 @@ test("validation is accessible and does not contact GitHub", async ({ page }) =>
   let requests = 0;
   await page.route("https://api.github.com/**", () => { requests++; });
   await page.goto("/");
-  await submit(page, "bad--username");
+  await submit(page, "bad username");
   await expect(page.getByRole("alert")).toContainText("GitHub username");
   await expect(page.getByLabel("GitHub username")).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByLabel("GitHub username")).toBeFocused();
   expect(requests).toBe(0);
+});
+
+for (const username of ["gugregor_microsoft", "mona-cat_octo", "octo_admin", "github-actions[bot]"]) {
+  test(`accepts ${username} through the form, account lookup and contribution search`, async ({ page }) => {
+    const requests = await mock(page, route => route.fulfill({
+      json: { total_count: 1, incomplete_results: false, items: [pr(1)] }
+    }));
+    await page.goto("/");
+    await submit(page, ` @${username} `);
+    await expect(page.locator("#results")).toHaveAttribute("data-state", "complete");
+    await expect(page.getByLabel("GitHub username")).toHaveValue(username);
+    await expect(page.getByLabel("GitHub username")).not.toHaveAttribute("aria-invalid", "true");
+    await expect(page.getByRole("alert")).toBeHidden();
+    await expect(page.locator("#results-heading")).toHaveText(`Contributions by @${username}`);
+    expect(requests[0].pathname).toBe(`/users/${encodeURIComponent(username)}`);
+    const search = requests.find(url => url.pathname === "/search/issues");
+    expect(search.searchParams.get("q").startsWith(`author:${username} org:MicrosoftDocs is:pr created:`)).toBe(true);
+  });
+}
+
+test("an underscore account unavailable to the public API is not rejected by input validation", async ({ page }) => {
+  const requests = await mock(page, () => { throw new Error("Search must not run for a missing public account"); }, {
+    userStatus: 404, userBody: { message: "Not Found" }
+  });
+  await page.goto("/");
+  await submit(page, "gugregor_microsoft");
+  await expect(page.locator("#results")).toHaveAttribute("data-state", "error");
+  await expect(page.getByRole("alert")).toBeHidden();
+  await expect(page.getByLabel("GitHub username")).not.toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#status-detail")).toContainText("@gugregor_microsoft was not found");
+  expect(requests).toHaveLength(1);
+  expect(requests[0].pathname).toBe("/users/gugregor_microsoft");
 });
 
 test("existing empty account differs from a missing account", async ({ page }) => {

@@ -7,8 +7,8 @@ const MAX_ATTEMPTS = 3;
 
 export function normalizeUsername(value) {
   const username = value.trim().replace(/^@/, "").trim();
-  if (!/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(username)) {
-    throw new ApiError("Enter a GitHub username: 1-39 letters, numbers or single hyphens, with no hyphen at either end.",
+  if (!/^[a-z\d_-]+(?:\[bot\])?$/i.test(username)) {
+    throw new ApiError("Enter a GitHub username using letters, numbers, hyphens or underscores, optionally ending in [bot].",
       { kind: "validation" });
   }
   return username;
